@@ -47,11 +47,7 @@ jobs:
         context: ./WebAppTest
         file: ./WebAppTest/Dockerfile
         push: false
-        tags: |
-          ${{ steps.image.outputs.image_name }}:${{ steps.version.outputs.version_tag }}
-          ${{ steps.image.outputs.image_name }}:sha-${{ github.sha }}
-          ${{ steps.image.outputs.image_name }}:prod
-
+        tags: ${{ steps.image.outputs.image_name }}:ci-${{ github.sha }}
 
     - name: Login to GHCR
       if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
@@ -71,6 +67,7 @@ jobs:
         tags: |
           ${{ steps.image.outputs.image_name }}:${{ steps.version.outputs.version_tag }}
           ${{ steps.image.outputs.image_name }}:sha-${{ github.sha }}
+          ${{ steps.image.outputs.image_name }}:prod
 
     - name: Print release image tag
       if: github.event_name == 'push' && github.ref == 'refs/heads/prod'
