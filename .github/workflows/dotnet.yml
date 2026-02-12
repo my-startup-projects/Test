@@ -1,4 +1,4 @@
-name: .NET
+name: .NET Build & Test
 
 on:
   push:
@@ -19,11 +19,23 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
+    - name: Find solution file
+      id: find_sln
+      run: |
+        # Найти первый .sln файл в репозитории
+        SOLUTION=$(find . -name "*.sln" | head -n 1)
+        if [ -z "$SOLUTION" ]; then
+          echo "No .sln file found!"
+          exit 1
+        fi
+        echo "Solution file found: $SOLUTION"
+        echo "solution_path=$SOLUTION" >> $GITHUB_OUTPUT
+
     - name: Restore dependencies
-      run: dotnet restore Test/WebAppTest/WebAppTest.sln
+      run: dotnet restore ${{ steps.find_sln.outputs.solution_path }}
 
     - name: Build
-      run: dotnet build Test/WebAppTest/WebAppTest.sln --no-restore
+      run: dotnet build ${{ steps.find_sln.outputs.solution_path }} --no-restore
 
     - name: Test
-      run: dotnet test Test/WebAppTest/WebAppTest.sln --no-build --verbosity normal
+      run: dotnet test ${{ steps.find_sln.outputs.solution_path }} --no-build --verbosity normal
